@@ -1,11 +1,11 @@
-  var tileWidth = 32
-  var tileHeight = 32
+  var tileWidth = 64
+  var tileHeight = 64
 
-  var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render})
+  var game = new Phaser.Game((24 * tileWidth), (16 * tileHeight), Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render})
 
 
 function preload() {
-  game.load.tilemap('newMap', 'assets/tilemap2.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.tilemap('newMap', 'assets/tilemap64.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', 'assets/tileset.png')
 }
 
@@ -23,7 +23,7 @@ function create() {
   
   map = game.add.tilemap('newMap')
 
-  map.addTilesetImage('tileset1', 'tiles')
+  map.addTilesetImage('tileset', 'tiles')
 
   layer = map.createLayer('tileLayer1')
 
