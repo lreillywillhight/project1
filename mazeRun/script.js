@@ -40,11 +40,11 @@ function create() {
   
   player = game.add.sprite((8 * tileWidth), (7 * tileHeight),'player')
   
-  game.physics.p2.enable(player)
+  game.physics.p2.enable(player, false)
   
   // player.body.damping()
   player.body.fixedRotation = true
-  player.body.setCircle(24,0,3)
+  player.body.setCircle(20,0,7)
   
   // game.physics.arcade.gravity.x = 199 
   
@@ -69,17 +69,17 @@ function update() {
   // player.body.velocity.y = 0
   player.body.setZeroVelocity()
   
-  if (cursors.up.isDown) {
-    player.body.moveUp(300)
+  if (cursors.right.isDown) {
+    player.body.moveRight(300)
   }
   else if (cursors.left.isDown) {
     player.body.moveLeft(300)
   }
-  else if (cursors.down.isDown) {
+  if (cursors.down.isDown) {
     player.body.moveDown(300)
   }
-  else if (cursors.right.isDown) {
-    player.body.moveRight(300)
+  else if (cursors.up.isDown) {
+    player.body.moveUp(300)
   }
 }
 
