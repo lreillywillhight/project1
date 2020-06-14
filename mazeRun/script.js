@@ -36,7 +36,7 @@ function create() {
 
   layer.resizeWorld()
 
-  game.physics.p2.convertTilemap(map, layer)
+  resetCollision()
 
   player = game.add.sprite((8 * tileWidth), (7 * tileHeight), 'player')
 
@@ -71,14 +71,55 @@ function create() {
 function clearMap() {
   for (let x = 1; x < map.width - 1; x++) {
     for (let y = 1; y < map.height - 1; y++) {
-      map.removeTile(x, y)
+      map.removeTile(x, y)  //removes tile
+      placeFloor(x, y)    //places floor tile
     }
   }
-  game.physics.p2.convertTilemap(map,layer)
+  resetCollision()
 }
 
-document.getElementById("clearMapButton").addEventListener("click", function(e) {
+document.getElementById("clearMapButton").addEventListener("click", function (e) {
   clearMap()
+})
+
+
+//helpers for map generation
+function placeWall(x, y) { map.putTile(2, x, y) } //places a collidable wall at x,y tile\
+function placeFloor(x, y) { map.putTile(1, x, y) } //places a floor tile at xy tile
+function resetCollision() { game.physics.p2.convertTilemap(map, layer)}
+
+let currentX = 5 //starting XY coords for initial generation
+let currentY = 3
+let currentNode = 0
+
+function drawCurrentTile(cX, cY) {
+
+}
+
+function drawRight(cX, cY) {
+  map.getTile(cX,cY).properties.node = currentNode
+  for (let i = cX; i < map.width; i++) {
+    map.getTile(i, cY).properties.visited = true
+    placeWall(i, cY + 1)
+    placeWall(i, cY - 1)
+  }
+  currentNode += 1
+  resetCollision()
+  console.log('end')
+}
+
+//first map generation function
+function generateMap0() {
+  clearMap() //resets map to blank (except outer walls)
+  player.reset(2 * tileWidth, 2 * tileHeight) //resets player sprite to tile 2,2
+  placeWall(1, 5); placeWall(2, 5); placeWall(3, 5); placeWall(4, 1); placeWall(4, 2); placeWall(4, 4); placeWall(4, 5);
+  resetCollision()
+  map.getTile(4, 3).properties.gate = true //adds key value gate to starting entrance
+  drawRight(currentX,currentY)
+}
+
+document.getElementById('generateMap0').addEventListener('click', function (e) {
+  generateMap0()
 })
 
 function update() {
