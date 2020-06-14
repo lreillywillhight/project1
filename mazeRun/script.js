@@ -62,6 +62,8 @@ function create() {
 
 }
 
+// let mapHeight = map.height
+
 //CLEARMAP
 //removes all tiles (except outer walls) from map
 //map.removeTile(x,y) //x,y is tile
@@ -73,6 +75,7 @@ function clearMap() {
     for (let y = 1; y < map.height - 1; y++) {
       map.removeTile(x, y)  //removes tile
       placeFloor(x, y)    //places floor tile
+      map.getTile(x,y).properties.visited = false // set to remove null error in checkTunnel
     }
   }
   resetCollision()
@@ -82,45 +85,98 @@ document.getElementById("clearMapButton").addEventListener("click", function (e)
   clearMap()
 })
 
+document.getElementById('generateMap0').addEventListener('click', function (e) {
+  console.log('bing')
+  generateMap0()
+})
+
 
 //helpers for map generation
 function placeWall(x, y) { map.putTile(2, x, y) } //places a collidable wall at x,y tile\
 function placeFloor(x, y) { map.putTile(1, x, y) } //places a floor tile at xy tile
-function resetCollision() { game.physics.p2.convertTilemap(map, layer)}
+function resetCollision() { game.physics.p2.convertTilemap(map, layer) }
+function setVisited(x, y) { map.getTile(x, y).properties.visited = true }
+function setNode(x, y) { map.getTile(x, y).properties.node = currentNode }
 
 let currentX = 5 //starting XY coords for initial generation
-let currentY = 3
-let currentNode = 0
+let currentY = 9
+let currentNode = 0 //node for debugging purposes
+let nodeList = [] //used to calculate backtrack for tunneling to new draw locations
 
-function drawCurrentTile(cX, cY) {
+//BACKTRACKTUNNELUP
+// currentNode +=1
+// randomly selects an index value X from nodeList (newX)
+// newNodelist = [] //local
+// places a floor tile at (X,y-1)
+// setVisited(X,y-1)
+// newX = X //local from nodeList
+// newY = Y-2
+// drawUp()
+
+//CHECKTUNNELUP
+//checks current nodelist (X values)
+//parses for each nodeList[i] (X) that returns IF map.getTile(nL[i],y+2).properties.visited = true;
+//                                             OR y+1 = 0;
+// sets current nodeList to parsed format
+function checkTunnelUp(nlx, y) {
+  let newList = []
+  for (i = 0; i < nlx.length; i++)
+  if (checkViableUp(nlx[i],y)) {
+    newList.push(nlx[i])
+  }
+  // else {
+  //   false
+  // }
+  nodeList = newList
+}
+
+//CHECKVIABLEUP
+//helper function for checkTunnelUp()
+//returns true if tunneling is viable given x values of nodeList
+function checkViableUp(nX, y) {
+  return (map.getTile(nX, (y - 2)).properties.visited === false && y-1 !== 0 && y-2 !== 0)
+}
+
+function checkTunnelDown() {
 
 }
 
 function drawRight(cX, cY) {
-  map.getTile(cX,cY).properties.node = currentNode
+  let nodeStartX = cX
+  let nodeEndX
   for (let i = cX; i < map.width; i++) {
-    map.getTile(i, cY).properties.visited = true
+    setVisited(i, cY)
+    setNode(i, cY)
     placeWall(i, cY + 1)
     placeWall(i, cY - 1)
+    nodeEndX = i
+    nodeList.push(i)
   }
-  currentNode += 1
   resetCollision()
-  console.log('end')
+  checkTunnelUp(nodeList, currentY) // checks wall up for available tunnel locations
+  //backtrackTunnelUp() //backtrack to random location in currentNode, tunnel up
+  // currentNode += 1
+  // checkTunnelDown()
+  // backtrackTunnelDown()
+  // currentNode += 1 //move to backtrackTunnel
+  console.log('drawRight() end')
 }
 
+let playerStartX = (2 * tileWidth)
+let playerStartY = (18 / 2 * tileHeight)
 //first map generation function
 function generateMap0() {
+  nodeList = []
   clearMap() //resets map to blank (except outer walls)
-  player.reset(2 * tileWidth, 2 * tileHeight) //resets player sprite to tile 2,2
-  placeWall(1, 5); placeWall(2, 5); placeWall(3, 5); placeWall(4, 1); placeWall(4, 2); placeWall(4, 4); placeWall(4, 5);
+  // placeWall(playerStartX, 5); placeWall(2, 5); placeWall(3, 5); placeWall(4, 1); placeWall(4, 2); placeWall(4, 4); placeWall(4, 5);
+  placeWall(1, 7); placeWall(2,7); placeWall(3,7); placeWall(4,7); placeWall(4,8); placeWall(4,10); placeWall(4,11); placeWall(3,11); placeWall(2,11); placeWall(1,11);
   resetCollision()
-  map.getTile(4, 3).properties.gate = true //adds key value gate to starting entrance
-  drawRight(currentX,currentY)
+  player.reset(playerStartX,playerStartY) //resets player sprite to tile 2,2
+  map.getTile(4, 9).properties.gate = true //adds key value gate to starting entrance
+  drawRight(currentX, currentY)
 }
 
-document.getElementById('generateMap0').addEventListener('click', function (e) {
-  generateMap0()
-})
+
 
 function update() {
 
