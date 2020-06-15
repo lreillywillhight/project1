@@ -1,4 +1,5 @@
 {
   "editor.hover.enabled": false,
-  "editor.hover.sticky": false
+  "editor.hover.sticky": false,
+  "editor.hover.delay": 10000
 }

@@ -98,10 +98,12 @@ function resetCollision() { game.physics.p2.convertTilemap(map, layer) }
 function setVisited(x, y) { map.getTile(x, y).properties.visited = true }
 function setNode(x, y) { map.getTile(x, y).properties.node = currentNode }
 
-let startX = 5 //starting XY coords for initial generation
+let startX = 4 //starting XY coords for initial generation
 let startY = 9
 let currentNode = 0 //node for debugging purposes
-let nodeList = [] //used to calculate backtrack for tunneling to new draw locations
+let nodeList = {} //used to calculate backtrack for tunneling to new draw locations
+let currentX
+let currentY
 
 //BACKTRACKTUNNELUP
 // currentNode +=1
@@ -115,17 +117,13 @@ let nodeList = [] //used to calculate backtrack for tunneling to new draw locati
 // let newCXUp
 // let newCYUp
 
-function backtrackTunnelUp(nl, y) {
-  if (y < 3) { return }
-  else {
+// function backtrackTunnelUp(n, y) {
+  // if (y < 3) { return }
+  // else {
     // nl.pop()
-    console.log(nl.length)
-    let newX = nl
-    newX = nl[Math.ceil(Math.random() * nl.length)]
-    console.log('backtrackTunnelUp.newX',newX)
-    drawUp(newX, y - 2)
-  }
-}
+    // drawUp(n, y - 2)
+  // }
+// }
 
 function backtrackTunnelDown(nl, y) {
   if (y > map.height - 3) { return }
@@ -147,58 +145,60 @@ function backtrackTunnelRight(x, nl) {
   }
 }
 
-let nodeListUp = []
-let nodeListDown = []
-let nodeListLeft = []
 
-function drawDown(cX, cY) {
+
+function drawUp() {
   // let nodeStartX = cX
   // let nodeEndX
-  // let newXUp = cX
-  // let newYUp = cY
-  placeFloor(cX, cY - 1)
-  setVisited(cX, cY - 1)
-  placeFloor(cX, cY)
-  placeWall(cX + 1, cY); placeWall(cX - 1, cY)
-  setVisited(cX, cY)
-  let newYDown = cY + 1
-  for (let i = newYDown; i < map.height; i++) {
-    // checkCollide()
-    setVisited(cX, i)
-    placeWall(cX + 1, i)
-    placeWall(cX - 1, i)
-    nodeListDown.push(i)
-  }
-  resetCollision()
-  backtrackTunnelRight(cX, nodeListDown) //backtrack to random   location in currentNode, tunnel right
-  // checkTunnelDown()
-  // backtrackTunnelDown()
-  console.log('drawDown() end')
-}
-
-function drawUp(cX, cY) {
-  // let nodeStartX = cX
-  // let nodeEndX
-  // let newXUp = cX
-  // let newYUp = cY
-  placeFloor(cX, cY + 1)
-  setVisited(cX, cY + 1)
-  placeFloor(cX, cY)
-  placeWall(cX + 1, cY); placeWall(cX - 1, cY)
-  setVisited(cX, cY)
-  let newYUp = cY - 1
+  let newXUp = currentNodeUp[0][0]
+  let newYUp = currentNodeUp[0][1]
+  currentNodeUp.shift()
+  placeFloor(newXUp, newYUp - 1)
+  setVisited(newXUp, newYUp - 1)
+  placeFloor(newXUp, newYUp)
+  // placeWall(newXUp + 1, newYUp); placeWall(newXUp - 1, newYUp)
+  // setVisited(newXUp, newYUp)
+  newYUp = newYUp - 1
   for (let i = newYUp; i > 0; i--) {
     // checkCollide()
-    setVisited(cX, i)
-    placeWall(cX + 1, i)
-    placeWall(cX - 1, i)
+    setVisited(newXUp, i)
+    placeWall(newXUp + 1, i)
+    placeWall(newXUp - 1, i)
     nodeListUp.push(i)
   }
   resetCollision()
-  backtrackTunnelRight(cX, nodeListUp) //backtrack to random   location in currentNode, tunnel up
-  // checkTunnelDown()
-  // backtrackTunnelDown()
+  currentNodeLeft.push([ newXUp , nodeListUp[Math.ceil(Math.random() * nodeListUp.length)]])
+  currentNodeRight.push([ newXUp , nodeListUp[Math.ceil(Math.random() * nodeListUp.length)]])
   console.log('drawUp() end')
+}
+
+
+function drawDown() {
+  // let nodeStartX = cX
+  // let nodeEndX
+  let newXDown = currentNodeDown[0][0]
+  let newYDown = currentNodeDown[0][1]
+  currentNodeDown.shift()
+  placeFloor(newXDown, newYDown + 1)
+  setVisited(newXDown, newYDown)
+  placeFloor(newXDown, newYDown)
+  // placeWall(newXDown + 1, newYDown); placeWall(newXDown - 1, newYDown)
+  // setVisited(newXDown, newYDown)
+  newYDown = newYDown + 1
+  for (let i = newYDown; i < map.height; i++) {
+    // checkCollide()
+    setVisited(newXDown, i)
+    placeWall(newXDown + 1, i)
+    placeWall(newXDown - 1, i)
+    nodeListDown.push(i)
+  }
+  resetCollision()
+
+  currentNodeLeft.push([newXDown,nodeListDown[Math.ceil(Math.random() * nodeListDown.length)]])
+
+  currentNodeRight.push([newXDown,nodeListDown[Math.ceil(Math.random() * nodeListDown.length)]])
+
+  console.log('drawDown() end')
 }
 
 // let checkTunnelRight = function (x, nly) {
@@ -302,29 +302,76 @@ function drawUp(cX, cY) {
 // backtrackTunnelRight(cX, newNodeListUp) //backtrack to random location in currentNode, tunnel Right
 // checkTunnelDown()
 // backtrackTunnelDown()
-
+// let currentXRight = []
+// let currentXLeft = []
+// let currentXUp = []
+// let currentXDown = []
+// let currentYRight = []
+// let currentYLeft = []
+// let currentYUp = []
+// let currentYDown = []
 let nodeListRight = []
+let nodeListLeft = []
+let nodeListUp = []
+let nodeListDown = []
+let currentNodeRight  = []
+let currentNodeLeft = []
+let currentNodeUp = []
+let currentNodeDown = []
+let masterNodeList = []
 
-function drawRight(cX, cY) {
+function drawLeft() {
   // let nodeStartX = cX
   // let nodeEndX
-  let newXRight
-  let newYRight
-  placeFloor(cX - 1, cY)
-  setVisited(cX - 1, cY)
-  placeFloor(cX, cY); placeWall(cX, cY + 1); placeWall(cX, cY - 1)
-  setVisited(cX, cY)
-  newXRight = cX + 1
+  let newXLeft = currentNodeLeft[0][0]
+  let newYLeft = currentNodeLeft[0][1]
+  currentNodeLeft.shift()
+  newXLeft = newXLeft - 1
+  placeFloor(newXLeft - 1, newYLeft)
+  setVisited(newXLeft - 1, newYLeft)
+  placeFloor(newXLeft, newYLeft); placeWall(newXLeft, newYLeft + 1); placeWall(newXLeft, newYLeft - 1)
+  setVisited(newXLeft, newYLeft)
+  for (let i = newXLeft; i > 0; i--) {
+    // checkCollide()
+    setVisited(i, newYLeft)
+    placeWall(i, newYLeft + 1)
+    placeWall(i, newYLeft - 1)
+    nodeListLeft.push(i)
+  }
+  resetCollision()
+  
+  currentNodeUp.push([nodeListLeft[Math.ceil(Math.random() * nodeListLeft.length)], newYLeft])
+  
+  currentNodeDown.push([nodeListLeft[Math.ceil(Math.random() * nodeListLeft.length)], newYLeft])
+  
+  console.log('drawLeft() end')
+}
+
+
+function drawRight() {
+  // let nodeStartX = cX
+  // let nodeEndX
+  let newXRight = currentNodeRight[0][0]
+  let newYRight = currentNodeRight[0][1]
+  currentNodeRight.shift()
+  newXRight = newXRight + 1
+  placeFloor(newXRight, newYRight)
+  setVisited(newXRight, newYRight)
+  placeFloor(newXRight, newYRight); placeWall(newXRight, newYRight + 1); placeWall(newXRight, newYRight - 1)
+  setVisited(newXRight, newYRight)
   for (let i = newXRight; i < map.width - 1; i++) {
     // checkCollide()
-    setVisited(i, cY)
-    placeWall(i, cY + 1)
-    placeWall(i, cY - 1)
+    setVisited(i, newYRight)
+    placeWall(i, newYRight + 1)
+    placeWall(i, newYRight - 1)
     nodeListRight.push(i)
   }
   resetCollision()
-  backtrackTunnelUp(nodeListRight, cY) //backtrack to random   location in currentNode, tunnel up
-  // backtrackTunnelDown(nodeListRight, cY)
+  
+  currentNodeUp.push([nodeListRight[Math.ceil(Math.random() * nodeListRight.length)], newYRight])
+  
+  currentNodeDown.push([nodeListRight[Math.ceil(Math.random() * nodeListRight.length)], newYRight])
+  
   console.log('drawRight() end')
 }
 
@@ -341,7 +388,16 @@ function generateMap0() {
   resetCollision()
   player.reset(2 * tileWidth, 9 * tileHeight) //resets player sprite to tile 2,2
   map.getTile(4, 9).properties.gate = true //adds key value gate to starting entrance
-  drawRight(startX, startY)
+  // currentNodeRight.push([startX,startY])
+  // drawAll(startX, startY)
+}
+
+currentNodeRight.push([startX,startY])
+function drawAll() {
+  drawRight()
+  drawUp()
+  drawLeft()
+  drawDown()
 }
 
 
