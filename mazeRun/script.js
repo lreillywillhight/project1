@@ -98,67 +98,142 @@ function resetCollision() { game.physics.p2.convertTilemap(map, layer) }
 function setVisited(x, y) { map.getTile(x, y).properties.visited = true }
 function setNode(x, y) { map.getTile(x, y).properties.node = currentNode }
 
-let currentX = 5 //starting XY coords for initial generation
-let currentY = 9
+let startX = 5 //starting XY coords for initial generation
+let startY = 9
 let currentNode = 0 //node for debugging purposes
 let nodeList = [] //used to calculate backtrack for tunneling to new draw locations
 
 //BACKTRACKTUNNELUP
 // currentNode +=1
-// randomly selects an index value X from nodeList (newX)
-// newNodelist = [] //local
-// places a floor tile at (X,y-1)
-// setVisited(X,y-1)
-// newX = X //local from nodeList
-// newY = Y-2
+// nodeListUp = [] //local
+// randomly selects an index value X from nodeList (newCXUp)
+// places a floor tile at (newCXUp,y-1)
+// setVisited(newCXUp),y-1)
+// newCXUp = X //local from nodeList
+// newCYUp = Y-2
 // drawUp()
+
+function backtrackTunnelUp (nl, y) {
+  if (nl = null) {return}
+  else {
+  currentNode +=1
+  let newListUp = []
+  newCXUp = nl[Math.ceil(Math.random() * nl.length)]
+  placeFloor(newCXUp, y-1)
+  newCYUp = y-2
+  drawUp(newCXUp, newCYUp)
+  }
+}
+
+function backtrackTunnelRight (x, nl) {
+  if (nl = null) {return}
+  else {
+  currentNode +=1
+  // let newListRight = []
+  newCY = nl[Math.ceil(Math.random() * nl.length)]
+  placeFloor(x+1, newCYUp)
+  newCX = x + 2
+  drawRight(newCX, newCY)
+  }
+}
+
+function checkViableRight(x, nY) {
+  return (map.getTile((x + 2), nY).properties.visited === false && x + 1 !== 23)
+}
+
+let checkTunnelRight = function(x, nly) {
+  let newListRight = []
+  for (i = 0; i < nly.length; i++)
+  if (checkViableRight(x, nly[i])) {
+    newListRight.push(nly[i])
+  }
+  // else {
+  //   false
+  // }
+  // newNodeList = newListUp
+  // console.log('newListRight.checkTunnelRight()',newListRight)
+  return newListRight
+}
 
 //CHECKTUNNELUP
 //checks current nodelist (X values)
 //parses for each nodeList[i] (X) that returns IF map.getTile(nL[i],y+2).properties.visited = true;
 //                                             OR y+1 = 0;
-// sets current nodeList to parsed format
-function checkTunnelUp(nlx, y) {
-  let newList = []
+// returns parsed list
+let checkTunnelUp = function(nlx, y) {
+  let newListUp = []
   for (i = 0; i < nlx.length; i++)
   if (checkViableUp(nlx[i],y)) {
-    newList.push(nlx[i])
+    newListUp.push(nlx[i])
   }
   // else {
   //   false
   // }
-  nodeList = newList
+  // newNodeList = newListUp
+  // console.log('checkTunnelUp.newListUp',newListUp)
+  return newListUp
 }
 
 //CHECKVIABLEUP
 //helper function for checkTunnelUp()
 //returns true if tunneling is viable given x values of nodeList
 function checkViableUp(nX, y) {
+  // console.log(map.getTile(nX,y - 2).properties)
   return (map.getTile(nX, (y - 2)).properties.visited === false && y-1 !== 0 && y-2 !== 0)
 }
 
-function checkTunnelDown() {
+// function checkTunnelDown() {
 
+// }
+
+function drawUp(cX, cY) {
+  // let nodeStartY = cY
+  // let nodeEndY
+  let newNodeListUp = []
+  // let newNodeListUp = []
+  // let newX = cX
+  // let newY = cY
+  for (let i = cY; i > 0; i--) {
+    setVisited(cX, i)
+    setNode(cX, i)
+    // console.log(map.getTile(cX, i).properties)
+    // map.getTile(cX, i).properties
+    placeWall(cX - 1, i)
+    placeWall(cX + 1, i)
+    // nodeEndY = i
+    newNodeListUp.push(i)
+    // return newNodeListUp
+    // console.log('blahh',newNodeList)
+  }
+  resetCollision()
+  newNodeListUp = checkTunnelRight(cX, newNodeListUp)
+  console.log('newNodeList.drawUp',newNodeListUp)
+  backtrackTunnelRight(cX, newNodeListUp) //backtrack to random location in currentNode, tunnel Right
+  // checkTunnelDown()
+  // backtrackTunnelDown()
+  console.log('drawUp() end')
 }
 
 function drawRight(cX, cY) {
-  let nodeStartX = cX
-  let nodeEndX
+  // let nodeStartX = cX
+  // let nodeEndX
+  let newNodeList = []
+  // let newX = cX
+  // let newY = cY
   for (let i = cX; i < map.width; i++) {
     setVisited(i, cY)
     setNode(i, cY)
     placeWall(i, cY + 1)
     placeWall(i, cY - 1)
-    nodeEndX = i
-    nodeList.push(i)
+    // nodeEndX = i
+    newNodeList.push(i)
   }
   resetCollision()
-  checkTunnelUp(nodeList, currentY) // checks wall up for available tunnel locations
-  //backtrackTunnelUp() //backtrack to random location in currentNode, tunnel up
-  // currentNode += 1
+  newNodeList = checkTunnelUp(newNodeList, cY)
+  console.log('newNodeList.drawRight',newNodeList)
+  backtrackTunnelUp(newNodeList, cY) //backtrack to random location in currentNode, tunnel up
   // checkTunnelDown()
   // backtrackTunnelDown()
-  // currentNode += 1 //move to backtrackTunnel
   console.log('drawRight() end')
 }
 
@@ -173,7 +248,7 @@ function generateMap0() {
   resetCollision()
   player.reset(playerStartX,playerStartY) //resets player sprite to tile 2,2
   map.getTile(4, 9).properties.gate = true //adds key value gate to starting entrance
-  drawRight(currentX, currentY)
+  drawRight(startX, startY)
 }
 
 
