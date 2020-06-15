@@ -12,20 +12,20 @@ function preload() {
 }
 
 //misc
-var map 
+var map
 var tileset
 var layer
 var player
 var cursors
 let keys = 0
-let playerSpeed = 300
+let playerSpeed = 600
 var goomberSpeed = 150
 
 //node storage, called by draw functions
-let nodeListRight = []
-let nodeListLeft = []
-let nodeListUp = []
-let nodeListDown = []
+// let nodeListRight = []
+// let nodeListLeft = []
+// let nodeListUp = []
+// let nodeListDown = []
 let currentNodeRight = []
 let currentNodeLeft = []
 let currentNodeUp = []
@@ -33,42 +33,42 @@ let currentNodeDown = []
 let masterNodeList = [] //used to check all nodes simultaneously
 
 function create() {
-  
+
   game.physics.startSystem(Phaser.Physics.P2JS)
-  
-  
+
+
   game.stage.backgroundColor = '#787878'
-  
+
   map = game.add.tilemap('newMap')
-  
+
   map.addTilesetImage('tileset', 'tiles')
   layer = map.createLayer('tileLayer1')
-  map.setCollisionBetween(2, 3)
+  // map.setCollisionBetween(2, 3)
   layer.resizeWorld()
   resetCollision()
-  
+
   player = game.add.sprite((8 * tileWidth), (7 * tileHeight), 'player')
-  
+
   goomber = game.add.sprite((10 * tileWidth), (9 * tileHeight), 'goomber')
-  
+
   game.physics.p2.enable(player, false)
-  game.physics.p2.enable(goomber,false)
-  
+  game.physics.p2.enable(goomber, false)
+
   //body physics
   player.body.fixedRotation = true
   player.body.setCircle(20, 0, 7)
   player.body.damping = .999
-  
+
   goomber.body.fixedRotation = true
-  goomber.body.setCircle(25,0,0)
+  goomber.body.setCircle(25, 0, 0)
   goomber.body.velocity.x = -150
   goomber.body.damping = .4
 
   game.physics.p2.setBoundsToWorld(true, true, true, true, false)
   game.camera.follow(player)
-  
+
   cursors = game.input.keyboard.createCursorKeys()
-  
+
   // unlockButton = game.input.keyboard.addKey(Phaser.keyboard.SPACEBAR ) //call in update()
 
 }
@@ -92,14 +92,14 @@ function clearMap() {
 }
 
 //JS doesn't like these vars
-let playerStartX = (2 * tileWidth)
+let playerStartX = (1 * tileWidth)
 let playerStartY = (9 * tileHeight)
 //first map generation function
 function generateMap0() {
   nodeList = []
   clearMap() //resets map to blank (except outer walls)
   // placeWall(playerStartX, 5); placeWall(2, 5); placeWall(3, 5); placeWall(4, 1); placeWall(4, 2); placeWall(4, 4); placeWall(4, 5);
-  placeWall(1, 7); placeWall(2, 7); placeWall(3, 7); placeWall(4, 7); placeWall(4, 8); placeWall(4, 10); placeWall(4, 11); placeWall(3, 11); placeWall(2, 11); placeWall(1, 11);
+  placeWall(1, 8); placeWall(2, 8); placeWall(2, 8); placeWall(2, 9); placeWall(2, 10);; placeWall(2, 10); placeWall(1, 10);
   resetCollision()
   player.reset(playerStartX, playerStartY) //resets player sprite to tile 2,2
   map.getTile(4, 9).properties.gate = true //adds key value gate to starting entrance
@@ -122,11 +122,9 @@ function placeWall(x, y) { map.putTile(2, x, y) } //places a collidable wall at 
 function placeFloor(x, y) { map.putTile(1, x, y) } //places a floor tile at xy tile
 function resetCollision() { game.physics.p2.convertTilemap(map, layer) }
 function setVisited(x, y) { map.getTile(x, y).properties.visited = true }
-function setNode(x, y) { map.getTile(x, y).properties.node = currentNode }
+// function setNode(x, y) { map.getTile(x, y).properties.node = currentNode }
 
-let startX = 4 //starting XY coords for initial generation
-let startY = 9
-let currentNode = 0 //node for debugging purposes
+
 // let currentX // I think these are unused
 // let currentY //
 
@@ -155,8 +153,8 @@ function drawUp() {
 
   currentNodeRight.push([newXUp, nodeListUp[Math.ceil(Math.random() * nodeListUp.length)]])
 
-  console.log('cNRight',currentNodeRight[currentNodeRight.length - 1])
-  console.log('cNLeft',currentNodeLeft[currentNodeLeft.length - 1])
+  console.log('cNRight', currentNodeRight[currentNodeRight.length - 1])
+  console.log('cNLeft', currentNodeLeft[currentNodeLeft.length - 1])
   console.log('drawUp() end')
 }
 
@@ -187,8 +185,8 @@ function drawDown() {
 
   currentNodeRight.push([newXDown, nodeListDown[Math.ceil(Math.random() * nodeListDown.length)]])
 
-  console.log('cNLeft',currentNodeLeft[currentNodeLeft.length - 1])
-  console.log('cNRight',currentNodeRight[currentNodeRight.length - 1])
+  console.log('cNLeft', currentNodeLeft[currentNodeLeft.length - 1])
+  console.log('cNRight', currentNodeRight[currentNodeRight.length - 1])
   console.log('drawDown() end')
 }
 
@@ -196,18 +194,15 @@ function drawDown() {
 
 
 function drawLeft() {
-  // let nodeStartX = cX
-  // let nodeEndX
   let newXLeft = currentNodeLeft[0][0]
   let newYLeft = currentNodeLeft[0][1]
   currentNodeLeft.shift()
-  newXLeft = newXLeft - 1
-  placeFloor(newXLeft - 1, newYLeft)
-  setVisited(newXLeft - 1, newYLeft)
-  placeFloor(newXLeft, newYLeft); placeWall(newXLeft, newYLeft + 1); placeWall(newXLeft, newYLeft - 1)
-  setVisited(newXLeft, newYLeft)
+  let nodeListRight = []
+  
   for (let i = newXLeft; i > 0; i--) {
     // checkCollide()
+    // if () {}
+    placeFloor(i, newYLeft)
     setVisited(i, newYLeft)
     placeWall(i, newYLeft + 1)
     placeWall(i, newYLeft - 1)
@@ -219,40 +214,53 @@ function drawLeft() {
 
   currentNodeDown.push([nodeListLeft[Math.ceil(Math.random() * nodeListLeft.length)], newYLeft])
 
-  console.log('cNUp',currentNodeUp[currentNodeUp.length - 1])
-  console.log('cNDown',currentNodeDown[currentNodeDown.length - 1])
+  console.log('cNUp', currentNodeUp[currentNodeUp.length - 1])
+  console.log('cNDown', currentNodeDown[currentNodeDown.length - 1])
   console.log('drawLeft() end')
 }
 
 
 function drawRight() {
-  // let nodeStartX = cX
-  // let nodeEndX
   let newXRight = currentNodeRight[0][0]
   let newYRight = currentNodeRight[0][1]
   currentNodeRight.shift()
-  newXRight = newXRight + 1
-  placeFloor(newXRight, newYRight)
-  setVisited(newXRight, newYRight)
-  placeFloor(newXRight, newYRight); placeWall(newXRight, newYRight + 1); placeWall(newXRight, newYRight - 1)
-  setVisited(newXRight, newYRight)
+  let nodeListRight = []
+  
+
   for (let i = newXRight; i < map.width - 1; i++) {
     // checkCollide()
+    // if () {}
+    placeFloor(i, newYRight)
     setVisited(i, newYRight)
     placeWall(i, newYRight + 1)
     placeWall(i, newYRight - 1)
     nodeListRight.push(i)
   }
+  console.log(nodeListRight)
   resetCollision()
 
   currentNodeUp.push([nodeListRight[Math.ceil(Math.random() * nodeListRight.length)], newYRight])
 
   currentNodeDown.push([nodeListRight[Math.ceil(Math.random() * nodeListRight.length)], newYRight])
 
-  console.log('cNUp',currentNodeUp[currentNodeUp.length - 1])
-  console.log('cNDown',currentNodeDown[currentNodeDown.length - 1])
+  console.log('cNUp', currentNodeUp[currentNodeUp.length - 1])
+  console.log('cNDown', currentNodeDown[currentNodeDown.length - 1])
   console.log('drawRight() end')
 }
+
+
+function r() { drawRight() }
+function u() { drawUp() }
+function d() { drawDown() }
+function l() { drawLeft() }
+let rn = currentNodeRight
+let un = currentNodeUp
+let dn = currentNodeDown
+let ln = currentNodeLeft
+
+let startX = 2 //starting XY coords for initial generation
+let startY = 9
+let currentNode = 0 //node for debugging purposes
 
 //iteration, needs conditions for empty nodeLists, edge cases, collision handling
 currentNodeRight.push([startX, startY])
@@ -262,6 +270,20 @@ function drawAll() {
   drawLeft()
   drawDown()
 }
+
+document.getElementById('drawRight').addEventListener('click', function () {
+  drawRight()
+})
+document.getElementById('drawLeft').addEventListener('click', function () {
+  drawLeft()
+})
+document.getElementById('drawUp').addEventListener('click', function () {
+  drawUp()
+})
+document.getElementById('drawDown').addEventListener('click', function () {
+  drawDown()
+})
+
 
 // uses 'keys' on spacebar.isDown
 // function unlock() {
@@ -333,7 +355,7 @@ function render() {
   //     drawDown(newX, y + 2)
   //   }
   // }
-  
+
   // function backtrackTunnelRight(x, nl) {
   //   if (x > map.width - 3) { return }
   //   else {
@@ -459,7 +481,7 @@ function render() {
 // currentNode +=1
 // nodeListUp = [] //local
 // randomly selects an index value X from nodeList (newCXUp)
-// places a floor tile at (newCXUp,y-1)
+// places a ceil tile at (newCXUp,y-1)
 // setVisited(newCXUp),y-1)
 // newCXUp = X //local from nodeList
 // newCYUp = Y-2
