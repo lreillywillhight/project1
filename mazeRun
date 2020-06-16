@@ -1,4 +1,3 @@
-
 var tileWidth = 64
 var tileHeight = 64
 
@@ -23,10 +22,10 @@ let playerSpeed = 800
 var goomberSpeed = 150
 
 //node storage, called by draw functions
-let nodeListRight = []
-let nodeListLeft = []
-let nodeListUp = []
-let nodeListDown = []
+// let nodeListRight = []
+// let nodeListLeft = []
+// let nodeListUp = []
+// let nodeListDown = []
 let currentNodeRight = []
 let currentNodeLeft = []
 let currentNodeUp = []
@@ -135,9 +134,9 @@ function drawUp() {
   currentNodeUp.shift()
   nodeListUp = []
 
-  for (let i = newYUp - 1; i > 0; i--) {
+  for (let i = newYUp; i > 0; i--) {
     // checkCollide()
-    placeFloor(newXUp, i)
+    placeFloor(newXup, i)
     setVisited(newXUp, i)
     placeWall(newXUp + 1, i)
     placeWall(newXUp - 1, i)
@@ -146,9 +145,9 @@ function drawUp() {
   console.log(nodeListUp)
   resetCollision()
 
-  currentNodeLeft.push([newXUp, nodeListUp[Math.ceil(Math.random() * (nodeListUp.length - 1))]])
+  currentNodeLeft.push([newXUp, nodeListUp[Math.ceil(Math.random() * nodeListUp.length)]])
 
-  currentNodeRight.push([newXUp, nodeListUp[Math.ceil(Math.random() * (nodeListUp.length - 1))]])
+  currentNodeRight.push([newXUp, nodeListUp[Math.ceil(Math.random() * nodeListUp.length)]])
 
   console.log('cNRight', currentNodeRight[currentNodeRight.length - 1])
   console.log('cNLeft', currentNodeLeft[currentNodeLeft.length - 1])
@@ -162,9 +161,9 @@ function drawDown() {
   currentNodeDown.shift()
   nodeListDown = []
   
-  for (let i = newYDown + 1; i < map.height - 1; i++) {
+  for (let i = newYDown; i < map.height - 1; i++) {
     //checkCollide(cX, i)
-    placeFloor(newXDown, i)
+    placeFloor(newXdown, i)
     setVisited(newXDown, i)
     placeWall(newXDown + 1, i)
     placeWall(newXDown - 1, i)
@@ -173,9 +172,9 @@ function drawDown() {
   console.log(nodeListDown)
   resetCollision()
 
-  currentNodeLeft.push([newXDown, nodeListDown[Math.ceil(Math.random() * (nodeListDown.length - 1))]])
+  currentNodeLeft.push([newXDown, nodeListDown[Math.ceil(Math.random() * nodeListDown.length)]])
 
-  currentNodeRight.push([newXDown, nodeListDown[Math.ceil(Math.random() * (nodeListDown.length - 1))]])
+  currentNodeRight.push([newXDown, nodeListDown[Math.ceil(Math.random() * nodeListDown.length)]])
 
   console.log('cNLeft', currentNodeLeft[currentNodeLeft.length - 1])
   console.log('cNRight', currentNodeRight[currentNodeRight.length - 1])
@@ -203,9 +202,9 @@ function drawLeft() {
   console.log(nodeListLeft)
   resetCollision()
 
-  currentNodeUp.push([nodeListLeft[Math.ceil(Math.random() * (nodeListLeft.length - 1))], newYLeft])
+  currentNodeUp.push([nodeListLeft[Math.ceil(Math.random() * nodeListLeft.length)], newYLeft])
 
-  currentNodeDown.push([nodeListLeft[Math.ceil(Math.random() * (nodeListLeft.length - 1))], newYLeft])
+  currentNodeDown.push([nodeListLeft[Math.ceil(Math.random() * nodeListLeft.length)], newYLeft])
 
   console.log('cNUp', currentNodeUp[currentNodeUp.length - 1])
   console.log('cNDown', currentNodeDown[currentNodeDown.length - 1])
@@ -232,9 +231,9 @@ function drawRight() {
   console.log(nodeListRight)
   resetCollision()
 
-  currentNodeUp.push([nodeListRight[Math.ceil(Math.random() * (nodeListRight.length - 1))], newYRight])
+  currentNodeUp.push([nodeListRight[Math.ceil(Math.random() * nodeListRight.length)], newYRight])
 
-  currentNodeDown.push([nodeListRight[Math.ceil(Math.random() * (nodeListRight.length - 1))], newYRight])
+  currentNodeDown.push([nodeListRight[Math.ceil(Math.random() * nodeListRight.length)], newYRight])
 
   console.log('cNUp', currentNodeUp[currentNodeUp.length - 1])
   console.log('cNDown', currentNodeDown[currentNodeDown.length - 1])
