@@ -1,5 +1,10 @@
 MAZE_RUNNER
 
+You control Meatball. Collect keys, unlock doors, put Goomber in jail, and reach the exit.
+
+
+School Stuff
+_________________________________
 A primitive maze game (similar to Pac-Man). Player navigates a maze to the exit, where a new level is loaded.
 
 MVP is a basic maze to navigate.
@@ -21,3 +26,13 @@ TODO -
     -INTERACTABLE OBJECTS
     -PROCEDURAL LEVEL GENERATION
     -TITLE SCREEN / OPTIONS
+
+DAY 4-7 - FORGOT TO JOURNAL THESE DAYS.. DAY 4 I TOOK A BREAK ON ACCOUNT OF SANITY
+
+DUE DATE - IT'S A GAME. FEATURES:
+- MOVABLE PLAYER SPRITE
+- TILED GAME ENVIRONMENT
+    - COLLISION, KEYS/DOORS, KICKABLE GOOMBER, EXIT STATE
+- RANDOM CORRIDOR GENERATOR THAT IS FUNCTIONING BUT NOT REALLY PLAYABLE
+
+//all in all, i'd say this project has potential to be a good game, but I spent so much time researching how to manipulate data with phaser and how to properly generate a dungeon, that it's really not much of an actual game.

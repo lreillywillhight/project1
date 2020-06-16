@@ -19,7 +19,7 @@ var layer
 var player
 var cursors
 let keys = 0
-let playerSpeed = 800
+let playerSpeed = 400
 var goomberSpeed = 150
 
 //node storage, called by draw functions
@@ -161,7 +161,7 @@ function drawDown() {
   let newYDown = currentNodeDown[0][1]
   currentNodeDown.shift()
   nodeListDown = []
-  
+
   for (let i = newYDown + 1; i < map.height - 1; i++) {
     //checkCollide(cX, i)
     placeFloor(newXDown, i)
@@ -218,7 +218,6 @@ function drawRight() {
   let newYRight = currentNodeRight[0][1]
   currentNodeRight.shift()
   nodeListRight = []
-
 
   for (let i = newXRight; i < map.width - 1; i++) {
     // checkCollide()
@@ -287,15 +286,45 @@ document.getElementById('drawDown').addEventListener('click', function () {
 //general event handlers for Phaser
 function update() {
 
-  //use a key to unlock a door
-  if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 3) {
-    if (keys > 0) {
-      placeFloor(layer.getTileX(player.x), layer.getTileY(player.top))
-      keys--
-      document.getElementById('keysDisplay').innerHTML = "KEYS: " + keys
-      resetCollision()
+  //trigger endstate when exit tile is stepped on
+  if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 5) {
+    if (document.getElementById('gameStatus').innerHTML !== "You escaped the maze!") {
+      document.getElementById('gameStatus').innerHTML = "You escaped the maze!"
+      player.kill()
     }
-    { false }
+    else {
+      false
+    }
+  }
+
+  //use a key to unlock a door
+  if (map.getTile(layer.getTileX(goomber.x), layer.getTileY(goomber.y)).index === 7) {
+    if (document.getElementById('gameStatus').innerHTML !== "Goomber is in jail! Mean!") {
+      document.getElementById('gameStatus').innerHTML = "Goomber is in jail! Mean!"
+    }
+    else {
+      false
+    }
+  }
+
+  if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 3 || map.getTile(layer.getTileX(player.x), layer.getTileY(player.bottom)).index === 3) {
+    if (keys > 0) {
+      if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 3) {
+        placeFloor(layer.getTileX(player.x), layer.getTileY(player.top))
+        keys--
+        document.getElementById('keysDisplay').innerHTML = "KEYS: " + keys
+        resetCollision()
+      }
+      else if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.bottom)).index === 3) {
+        placeFloor(layer.getTileX(player.x), layer.getTileY(player.bottom))
+        keys--
+        document.getElementById('keysDisplay').innerHTML = "KEYS: " + keys
+        resetCollision()
+      }
+      else {
+        console.log('error in update.unlock')
+      }
+    }
   }
 
   //pick up a key
@@ -329,9 +358,9 @@ function update() {
 }
 
 function render() {
-  goomber.body.debug = true //body collision
-  player.body.debug = true
-  layer.debug = true //layer collision
+  // goomber.body.debug = true //body collision //debugs!
+  // player.body.debug = true
+  // layer.debug = true //layer collision
 }
 
 
