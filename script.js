@@ -10,6 +10,9 @@ function preload() {
   game.load.image('tiles', 'assets/tileset.png')
   game.load.image('player', 'assets/meatball.png')
   game.load.image('goomber', 'assets/goomber.png')
+  game.load.image('sign', 'assets/sign.png');
+
+
 }
 
 //misc
@@ -45,12 +48,18 @@ function create() {
   map.addTilesetImage('tileset', 'tiles')
   layer = map.createLayer('tileLayer1')
   map.setCollisionBetween(2, 3)
+  map.setCollisionBetween(8, 8)
+
   layer.resizeWorld()
   resetCollision()
 
   player = game.add.sprite((8 * tileWidth), (7 * tileHeight), 'player')
 
   goomber = game.add.sprite((10 * tileWidth), (9 * tileHeight), 'goomber')
+
+  sign = game.add.image(1235,331, 'sign')
+  sign.alpha = 0
+  // sign.anchor.set(0.5);
 
   game.physics.p2.enable(player, false)
   game.physics.p2.enable(goomber, false)
@@ -64,6 +73,9 @@ function create() {
   goomber.body.setCircle(25, 0, 0)
   goomber.body.velocity.x = -150
   goomber.body.damping = .4
+
+
+  // game.input.addMoveCallback(p, this);
 
   game.physics.p2.setBoundsToWorld(true, true, true, true, false)
   game.camera.follow(player)
@@ -109,7 +121,7 @@ function generateMap0() {
 }
 
 document.getElementById("clearMapButton").addEventListener("click", function (e) {
-  clearMap()
+  game.state.restart()
 })
 
 document.getElementById('generateMap0').addEventListener('click', function (e) {
@@ -297,15 +309,6 @@ function update() {
     }
   }
 
-  //use a key to unlock a door
-  if (map.getTile(layer.getTileX(goomber.x), layer.getTileY(goomber.y)).index === 7) {
-    if (document.getElementById('gameStatus').innerHTML !== "Goomber is in jail! Mean!") {
-      document.getElementById('gameStatus').innerHTML = "Goomber is in jail! Mean!"
-    }
-    else {
-      false
-    }
-  }
 
   if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 3 || map.getTile(layer.getTileX(player.x), layer.getTileY(player.bottom)).index === 3) {
     if (keys > 0) {
@@ -334,6 +337,13 @@ function update() {
     map.getTile(layer.getTileX(player.x), layer.getTileY(player.y)).index = 1
   }
 
+  //goomber in jail message
+  if (map.getTile(layer.getTileX(goomber.x), layer.getTileY(goomber.y)).index === 7) {
+    if (document.getElementById('gameStatus').innerHTML === "Goomball - Arrow keys to move") {
+      document.getElementById('gameStatus').innerHTML = "Goomber is in jail! Mean!"
+      map.putTile(8, 27, 7)
+    }
+  }
   // instantly sets velocity to 0
   // player.body.setZeroVelocity()
   if (cursors.right.isDown) {
@@ -349,13 +359,23 @@ function update() {
     player.body.moveUp(playerSpeed)
   }
 
-  // goomber.body.velocity.x = -150
-
-  // unlockButton.isDown && keys > 1 {
-
-  // }
-
+  // display sign when player on sign tile
+  if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.y)).index === 6) {
+    sign.alpha = 1;
+  }
+  else {
+    sign.alpha = 0;
+  }
 }
+
+
+// goomber.body.velocity.x = -150
+
+// unlockButton.isDown && keys > 1 {
+
+// }
+
+// 
 
 function render() {
   // goomber.body.debug = true //body collision //debugs!
@@ -511,10 +531,3 @@ function render() {
 // let newCXUp
 // let newCYUp
 
-// function backtrackTunnelUp(n, y) {
-// if (y < 3) { return }
-// else {
-// nl.pop()
-// drawUp(n, y - 2)
-// }
-// }
