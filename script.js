@@ -6,7 +6,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 
 
 function preload() {
-  game.load.tilemap('newMap', 'assets/tilemap64_2.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.tilemap('newMap', 'assets/tilemap64_new.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', 'assets/tileset.png')
   game.load.image('player', 'assets/meatball.png')
   game.load.image('goomber', 'assets/goomber.png')
@@ -22,7 +22,7 @@ var layer
 var player
 var cursors
 let keys = 0
-let playerSpeed = 400
+let playerSpeed = 1000
 var goomberSpeed = 150
 
 //node storage, called by draw functions
@@ -47,8 +47,8 @@ function create() {
 
   map.addTilesetImage('tileset', 'tiles')
   layer = map.createLayer('tileLayer1')
-  map.setCollisionBetween(2, 3)
-  map.setCollisionBetween(8, 8)
+  // map.setCollisionBetween(2, 3)
+  // map.setCollisionBetween(8, 8)
 
   layer.resizeWorld()
   resetCollision()
@@ -57,7 +57,7 @@ function create() {
 
   goomber = game.add.sprite((10 * tileWidth), (9 * tileHeight), 'goomber')
 
-  sign = game.add.image(1235,331, 'sign')
+  sign = game.add.image(1235, 331, 'sign')
   sign.alpha = 0
   // sign.anchor.set(0.5);
 
@@ -68,8 +68,9 @@ function create() {
   player.body.fixedRotation = true
   player.body.setCircle(20, 0, 7)
   player.body.damping = .999
+  player.body.collideWorldBounds = true
 
-  goomber.body.fixedRotation = true
+  // goomber.body.fixedRotation = true
   goomber.body.setCircle(25, 0, 0)
   goomber.body.velocity.x = -150
   goomber.body.damping = .4
@@ -112,10 +113,11 @@ function generateMap0() {
   nodeList = []
   clearMap() //resets map to blank (except outer walls)
   // placeWall(playerStartX, 5); placeWall(2, 5); placeWall(3, 5); placeWall(4, 1); placeWall(4, 2); placeWall(4, 4); placeWall(4, 5);
-  placeWall(1, 8); placeWall(2, 8); placeWall(2, 8); placeWall(2, 9); placeWall(2, 10);; placeWall(2, 10); placeWall(1, 10);
+  // placeWall(1, 8); placeWall(2, 8); placeWall(2, 8); placeWall(2, 9); placeWall(2, 10);; placeWall(2, 10); placeWall(1, 10);
   resetCollision()
-  player.reset(playerStartX, playerStartY) //resets player sprite to tile 2,2
-  map.getTile(4, 9).properties.gate = true //adds key value gate to starting entrance
+  player.reset(playerStartX, playerStartY) //resets player sprite to tile
+  currentNodeRight = [[startX,startY ]]
+  // map.getTile(4, 9).properties.gate = true //adds key value gate to starting entrance
   // currentNodeRight.push([startX,startY])
   // drawAll(startX, startY)
 }
@@ -135,7 +137,6 @@ function placeWall(x, y) { map.putTile(2, x, y) } //places a collidable wall at 
 function placeFloor(x, y) { map.putTile(1, x, y) } //places a floor tile at xy tile
 function resetCollision() { game.physics.p2.convertTilemap(map, layer) }
 function setVisited(x, y) { map.getTile(x, y).properties.visited = true }
-// function setNode(x, y) { map.getTile(x, y).properties.node = currentNode }
 
 
 // let currentX // I think these are unused
@@ -153,6 +154,8 @@ function drawUp() {
     setVisited(newXUp, i)
     placeWall(newXUp + 1, i)
     placeWall(newXUp - 1, i)
+
+    if (map.getTile(newXUp, i - 1).properties.visited || map.getTile(newXUp, i-1).index === 2 || i === 1) { break }
     nodeListUp.push(i)
   }
   console.log(nodeListUp)
@@ -180,6 +183,7 @@ function drawDown() {
     setVisited(newXDown, i)
     placeWall(newXDown + 1, i)
     placeWall(newXDown - 1, i)
+    if (map.getTile(newXDown, i + 1).properties.visited || map.getTile(newXDown,i+1).index === 2 || i === map.height-1) { break }
     nodeListDown.push(i)
   }
   console.log(nodeListDown)
@@ -203,14 +207,15 @@ function drawLeft() {
   currentNodeLeft.shift()
   nodeListLeft = []
 
-  for (let i = newXLeft; i > 0; i--) {
+  for (let i = newXLeft - 1; i > 0; i--) {
     // checkCollide()
     // if () {}
     placeFloor(i, newYLeft)
     setVisited(i, newYLeft)
     placeWall(i, newYLeft + 1)
     placeWall(i, newYLeft - 1)
-    nodeListLeft.push(i)
+    if (map.getTile(i - 1, newYLeft).properties.visited || map.getTile(i-1, newYLeft).index === 2 || i === 1) {break}
+      nodeListLeft.push(i)
   }
   console.log(nodeListLeft)
   resetCollision()
@@ -231,13 +236,14 @@ function drawRight() {
   currentNodeRight.shift()
   nodeListRight = []
 
-  for (let i = newXRight; i < map.width - 1; i++) {
+  for (let i = newXRight + 1; i < map.width - 1; i++) {
     // checkCollide()
     // if () {}
     placeFloor(i, newYRight)
     setVisited(i, newYRight)
     placeWall(i, newYRight + 1)
     placeWall(i, newYRight - 1)
+    if (map.getTile(i + 1, newYRight).properties.visited || map.getTile(i+1,newYRight).index === 2 || i === map.width-1) { break }
     nodeListRight.push(i)
   }
   console.log(nodeListRight)
@@ -253,6 +259,8 @@ function drawRight() {
 }
 
 
+
+//shortcut maps (debug yes)
 function r() { drawRight() }
 function u() { drawUp() }
 function d() { drawDown() }
@@ -262,12 +270,12 @@ let un = currentNodeUp
 let dn = currentNodeDown
 let ln = currentNodeLeft
 
-let startX = 2 //starting XY coords for initial generation
+let startX = 0 //starting XY coords for initial generation
 let startY = 9
 let currentNode = 0 //node for debugging purposes
 
 //iteration, needs conditions for empty nodeLists, edge cases, collision handling
-currentNodeRight.push([startX, startY])
+currentNodeRight = [[startX, startY]]
 function drawAll() {
   drawRight()
   drawUp()
@@ -287,6 +295,9 @@ document.getElementById('drawUp').addEventListener('click', function () {
 document.getElementById('drawDown').addEventListener('click', function () {
   drawDown()
 })
+document.getElementById('drawAll').addEventListener('click', function () {
+  drawAll()
+})
 
 
 // uses 'keys' on spacebar.isDown
@@ -304,12 +315,12 @@ function update() {
       document.getElementById('gameStatus').innerHTML = "You escaped the maze!"
       player.kill()
     }
-    else {
-      false
-    }
+    // else {
+    //   false
+    // }
   }
 
-
+  //unlock door (tile.index 3), removes a key, changes door to floor, reset collision !!!(refactor me)
   if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 3 || map.getTile(layer.getTileX(player.x), layer.getTileY(player.bottom)).index === 3) {
     if (keys > 0) {
       if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.top)).index === 3) {
@@ -332,9 +343,9 @@ function update() {
 
   //pick up a key
   if (map.getTile(layer.getTileX(player.x), layer.getTileY(player.y)).index === 4) {
+    map.getTile(layer.getTileX(player.x), layer.getTileY(player.y)).index = 1
     keys++
     document.getElementById('keysDisplay').innerHTML = "KEYS: " + keys;
-    map.getTile(layer.getTileX(player.x), layer.getTileY(player.y)).index = 1
   }
 
   //goomber in jail message
@@ -382,7 +393,6 @@ function render() {
   // player.body.debug = true
   // layer.debug = true //layer collision
 }
-
 
 
 
